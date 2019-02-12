@@ -1,4 +1,12 @@
-#Class 05 R graphics intro
+#' ---
+#' title: "Class 5 Introduction to R graphics"
+#' author: "Yvette Tan"
+#' date: "2/12/19"
+#' output: github_document
+#' ---
+
+#' Class 05 R graphics intro
+#' This is some test and I can have **bold** and *italic* and 'code'
 
 # My first boxplot
 x <- rnorm(1000,0)
