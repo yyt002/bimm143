@@ -2,10 +2,8 @@
 title: "Homework question 6 due 1/31/19"
 author: "Yvette Tan"
 date: "1/29/2019"
-output:
-  html_document: default
-  pdf_document: default
-  word_document: default
+output: github_document
+  
 ---
 
 ```{r setup, include=FALSE}
