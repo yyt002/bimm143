@@ -1,0 +1,291 @@
+---
+title: "Class 9 Analysis of Human Breast Cancer Cells"
+author: "Yvette Tan"
+date: "2/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Analysis of Breast Cancer Cells
+
+```{r}
+fna.data <- "WisconsinCancer (1).csv"
+wisc.df <- read.csv(fna.data)
+```
+
+
+```{r}
+head(wisc.df)
+```
+
+How many samples (i.e. patients) are in this data-set?
+
+```{r}
+nrow(wisc.df)
+```
+
+Next use as.matrix() to convert the other features (i.e. columns) of the data (in columns 3 through 32) to a matrix. Store this in a variable called wisc.data.
+
+```{r}
+wisc.data <- as.matrix(wisc.df[,3:32])
+wisc.data
+```
+
+# Set the row names of wisc.data
+
+```{r}
+row.names(wisc.data) <- wisc.df$id
+head(wisc.data)
+```
+
+
+Finally, setup a separate new vector called diagnosis to be 1 if a diagnosis is malignant ("M") and 0 otherwise. Note that R coerces TRUE to 1 and FALSE to  0.
+
+How many cancer (M) and non cancer samples do we have in our dataset?
+```{r}
+#wisc.df$diagnosis
+table(wisc.df$diagnosis)
+
+```
+
+```{r}
+
+diagnosis <- as.numeric(wisc.df$diagnosis == "M")
+diagnosis
+```
+
+Lets double check
+```{r}
+cbind(diagnosis, wisc.df$diagnosis)
+```
+
+Q1. How many observations are in this dataset?
+```{r}
+nrow(wisc.data)
+```
+
+Q2. How many variables/features in the data are suffixed with _mean?
+```{r}
+inds <- grep("_mean", colnames(wisc.data))
+length(inds)
+```
+
+Q3. How many of the observations have a malignant diagnosis?
+```{r}
+sum(diagnosis)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 2. Principal Component Analysis
+
+Check the mean and standard deviation of the features (i.e. columns) of the wisc.data to determine if the data should be scaled. Use the colMeans() and apply() functions like you’ve done before.
+
+```{r}
+# Check column means and standard deviations
+colMeans(wisc.data)
+
+```
+
+```{r}
+apply(wisc.data,2,sd)
+```
+
+Execute PCA with the prcomp() function on the wisc.data, scaling if appropriate, and assign the output model to wisc.pr.
+
+```{r}
+# Perform PCA on wisc.data by completing the following code
+wisc.pr <- prcomp(wisc.data, scale = TRUE)
+summary(wisc.pr)
+```
+
+Q4. From your results, what proportion of the original variance is captured by the first principal components (PC1)?
+44.27%
+if you want 80% -> PC5
+
+
+Q5. How many principal components (PCs) are required to describe at least 70% of the original variance in the data?
+3
+
+Q6. How many principal components (PCs) are required to describe at least 90% of the original variance in the data?
+
+7
+
+
+We need to make our own PCA plot
+
+```{r}
+plot(wisc.pr$x[,1], wisc.pr$x[,2], xlab = "PC1", ylab = "PC2")
+#diagnosis is a vector of 1's and 0's, so anything that is a 0 becomes white. If you change it to a vector of 1 and 2, there's black and red.
+plot(wisc.pr$x[,1], wisc.pr$x[,2], xlab = "PC1", ylab = "PC2", col = diagnosis+1)
+```
+
+Q8. Generate a similar plot for principal components 1 and 3. What do you notice about these plots?
+
+```{r}
+plot(wisc.pr$x[,1], wisc.pr$x[,3], xlab = "PC1", ylab = "PC3", col = diagnosis+1)
+```
+
+
+
+##Variance captured in each PC
+
+Calculate the variance of each principal component by squaring the sdev component of  wisc.pr (i.e. wisc.pr$sdev^2). Save the result as an object called pr.var.
+
+Square of standard deviation = variance
+
+This info is in the $sdev component of our PCA result
+```{r}
+# Calculate variance of each component
+variance <- wisc.pr$sdev^2
+#Calculate the variance explained by each principal component
+(variance/sum(variance)) * 100
+#Proportion of total variance
+pve <- round((variance/sum(variance)) *100,1)
+```
+
+create a plot of variance explained for each principal component.
+```{r}
+plot(pve, typ = "o", xlab = "Principal Component", 
+     ylab = "Proportion of Variance Explained")
+```
+
+
+```{r}
+
+
+# Plot variance explained for each principal component
+plot(pve, xlab = "Principal Component", 
+     ylab = "Proportion of Variance Explained", 
+     ylim = c(0, 1), type = "o")
+```
+
+```{r}
+# Alternative scree plot of the same data, note data driven y-axis
+#paste0 has no space in between, paste adds whatever type of "space" you want
+
+barplot(pve, ylab = "Precent of Variance Explained",
+     names.arg=paste0("PC",1:length(pve)), las=2, axes = FALSE)
+axis(2, at=pve, labels=round(pve,2)*100 )
+```
+
+
+
+
+
+
+
+
+
+
+
+## 3. Hierarchical clustering of cancer data
+
+Need a few things:
+1). Distance 
+2. **hclust()** function
+3. Use the **cutree()** function to find cluster membership vector
+```{r}
+# Scale the wisc.data data: data.scaled
+data.scaled <- scale(wisc.data)
+```
+
+```{r}
+round(apply(wisc.data, 2, sd), 1)
+
+```
+
+```{r}
+round(apply(data.scaled, 2, sd), 1)
+```
+
+
+Calculate the (Euclidean) distances between all pairs of observations in the new scaled dataset and assign the result to data.dist
+```{r}
+data.dist <- dist(data.scaled)
+```
+
+
+Create a hierarchical clustering model using complete linkage. Manually specify the method argument to hclust() and assign the results to  wisc.hclust.
+```{r}
+wisc.hclust <-hclust(data.dist, method = "complete")
+plot(wisc.hclust)
+```
+
+
+## Cluster in PCA space
+
+For clustering we need?
+1. distance matrix
+2. hclust()
+3. Cutree()
+
+```{r}
+plot(wisc.pr$x[,1], wisc.pr$x[,2], xlab = "PC1", ylab = "PC2", col = diagnosis+1)
+
+```
+```{r}
+pc.dist <- dist(wisc.pr$x[,1:2])
+pc.hclust <- hclust(pc.dist, method = "ward.D2")
+plot(pc.hclust)
+```
+
+
+CUTTTTTTTTTREEEEEEEEEEE
+
+```{r}
+
+grps <- cutree(pc.hclust, k = 3)
+#can find out how many in each group
+table(grps)
+
+```
+
+```{r}
+table(grps, diagnosis)
+#in cluster 1, there are 0 of benign diagnosis, and 112 who are malignant
+```
+
+```{r}
+plot(wisc.pr$x[,1:2], col=grps)
+```
+
+
+
+## 7. Prediction
+We will use the predict() function that will take our PCA model from before and new cancer cell data and project that data onto our PCA space.
+
+```{r}
+#url <- "new_samples.csv"
+url <- "https://tinyurl.com/new-samples-CSV"
+new <- read.csv(url)
+npc <- predict(wisc.pr, newdata=new)
+npc
+```
+
+```{r}
+plot(wisc.pr$x[,1:2], col=grps)
+points(npc[,1], npc[,2], col="blue", pch=16)
+```
+
+in this model, with two new patients (blue dots), you'd worry about the patient on the left
+
+
+
+
+
+
+
