@@ -2,7 +2,7 @@
 
 this is a store of my class-work for [BIMM143 Winter 2019](https://bioboot.github.io/bimm143_W19/) at UCSD
 
-##Contents
+## Contents
 
 Class05 [R Graphics](https://github.com/yyt002/bimm143/blob/master/class05/class05.md)
 
