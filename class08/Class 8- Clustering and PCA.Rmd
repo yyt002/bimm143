@@ -67,9 +67,6 @@ hc <- hclust(d = dist_matrix)
 hc
 
 ```
-```{r}
-View( as.matrix(dist_matrix))
-```
 
 ```{r}
 plot(hc)
@@ -125,7 +122,7 @@ dist_matrix <- dist(x)
 # clustering model
 hc <- hclust(d = dist_matrix)
 # the print method is not so useful here
-plot(hcx)
+plot(hc)
 abline(h=2, col = "red")
 abline(h=2.5, col = "blue")
 
@@ -195,13 +192,10 @@ dim(y)
 #or ncol(x) or nrow(x)
 ```
 
-checking your data (previewing it)
-
 ```{r}
- #for displaying all data in a new tab
-head(foodz) #first six
-#or tail(), view() should show up in a new tab
+head(y)
 ```
+
 
 ```{r}
 barplot(as.matrix(y), beside=T, col=rainbow(nrow(y)))
