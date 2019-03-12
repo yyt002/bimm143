@@ -1,0 +1,134 @@
+---
+title: "Class 18"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 
+
+```{r}
+#source("https://bioconductor.org/biocLite.R")
+#biocLite(c("GenomicDataCommons", "TCGAbiolinks", "maftools"))
+
+library(GenomicDataCommons)
+library(TCGAbiolinks)
+library(maftools)
+```
+
+```{r}
+GenomicDataCommons::status()
+```
+
+```{r}
+cases_by_project <- cases() %>%
+  facet("project.project_id") %>%
+  aggregations()
+head(cases_by_project)
+```
+
+
+Write the R code to make a barplot of the cases per project. Lets plot this data with a log scale for the y axis (log="y"), rotated axis labels (las=2) and color the bar coresponding to the TCGA-PAAD project.
+
+```{r}
+x <- cases_by_project$project.project_id
+barplot(x$doc_count, names.arg= x$key, las = 2, log="y")
+```
+
+
+```{r}
+
+query <- GDCquery(project="TCGA-PAAD",
+                  data.category="Transcriptome Profiling",
+                  data.type="Gene Expression Quantification")
+
+ans <- getResults(query)
+```
+
+```{r}
+maf.file <- GDCquery_Maf(tumor="PAAD", pipelines = "mutect")
+head(maf.file)
+vars = read.maf(maf = maf.file, verbose = FALSE)
+```
+
+
+
+```{r}
+plotmafSummary(vars)
+
+```
+
+
+```{r}
+lollipopPlot(vars, gene='TP53')
+```
+
+
+Part 2
+
+```{r}
+library(bio3d)
+seqs <- read.fasta("lecture18_sequences.fa")
+seqs
+```
+
+
+
+```{r}
+## Calculate positional identity scores
+ide <- conserv(seqs$ali, method="identity")
+mutant.sites <- which(ide < 1) 
+
+## Exclude gap possitions from analysis
+gaps <- gap.inspect(seqs)
+mutant.sites <- mutant.sites[mutant.sites %in% gaps$f.inds]
+
+mutant.sites
+```
+
+```{r}
+## Make a "names" label for our output sequences (one per mutant)
+mutant.names <- paste0(seqs$ali["P53_wt",mutant.sites],
+                       mutant.sites,
+                       seqs$ali["P53_mutant",mutant.sites])
+
+mutant.names
+```
+
+```{r}
+## Sequence positions surounding each mutant site
+start.position <- mutant.sites - 8
+end.position <-  mutant.sites + 8
+
+# Blank matrix to store sub-sequences
+store.seqs <- matrix("-", nrow=length(mutant.sites), ncol=17)
+rownames(store.seqs) <- mutant.names
+
+## Extract each sub-sequence
+for(i in 1:length(mutant.sites)) {
+  store.seqs[i,] <- seqs$ali["P53_mutant",start.position[i]:end.position[i]]
+}
+
+store.seqs
+```
+
+```{r}
+## Output a FASTA file for further analysis
+write.fasta(seqs=store.seqs, ids=mutant.names, file="subsequences.fa")
+```
+
+```{r}
+library(bio3d)
+
+## Read KRas oncogene sequence from UniProt
+wt <- get.seq("P01116")
+
+## Here we make four mutants namely: G12V, Q22N, T74S and A130V
+mutant <- wt
+mutant$ali[ c(12,22,74,130)] <- c("V", "N", "S", "V")
+
+write.fasta( seqbind(wt, mutant), ids=c("wt","mutant"), file="kras-sequences.fa")
+```
+
