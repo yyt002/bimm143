@@ -2,7 +2,7 @@
 title: "Class 9 Analysis of Human Breast Cancer Cells"
 author: "Yvette Tan"
 date: "2/7/2019"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -31,7 +31,7 @@ Next use as.matrix() to convert the other features (i.e. columns) of the data (i
 
 ```{r}
 wisc.data <- as.matrix(wisc.df[,3:32])
-wisc.data
+head(wisc.data)
 ```
 
 # Set the row names of wisc.data
