@@ -2,7 +2,7 @@
 title: "Class 7 functions and packages"
 author: "Yvette Tan"
 date: "1/29/2019"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -19,9 +19,6 @@ Lets try the rescale() function out
 rescale( c(1, 5, 10))
 ```
 Let's try **rescale2()** with the **stop()** function catch for non-numeric input
-```{r}
-rescale2(c(1:5, "string"))
-```
 
 **which()** : which element is true using 
 ```{r}
@@ -63,14 +60,6 @@ both_na(x, y3)
 both_na(y1, y3)
 both_na(y4, y3)
 #when length isn't equal, the shorter will rerun the vector from left to right until it matches the length of the longer vector
-```
- 
-```{r}
-both_na2(x, y3)
-```
-```{r}
-both_na3(x, y2)
-
 ```
 
 ```{r}
