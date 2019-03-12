@@ -1,0 +1,103 @@
+---
+title: "Class11: Structural Bioinformatics 1"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Section 1. The PDB
+
+Q1: Determine the percentage of structures solved by X-Ray and Electron Microscopy. From
+the website what proportion of structures are protein? Aim to have a rendered GitHub document
+with working code that yields your answers.
+```{r}
+stats <- read.csv("Data Export Summary.csv", row.names = 1)
+stats
+```
+
+```{r}
+
+percent.by.method <- stats$Total/sum(stats$Total)*100
+names(percent.by.method) <- rownames(stats)
+percent.by.method
+
+```
+
+```{r}
+sum(stats$Proteins)/sum(stats$Total)*100
+
+```
+
+
+## Section 3. Introduction to Bio3D in R
+
+First we have to load the package we want to use
+```{r}
+library(bio3d)
+```
+
+Now we can use the functions from this bio3d package
+
+```{r}
+pdb <- read.pdb("1hsg")
+pdb
+```
+
+```{r}
+#head(aa321(pdb$atom$resid))
+
+```
+
+
+
+```{r}
+ca.inds <- atom.select(pdb, "calpha")
+ca.inds
+```
+
+```{r}
+# Print details of the first few selected atoms
+head( pdb$atom[ca.inds$atom, ] )
+
+# And selected xyz coordinates
+head( pdb$xyz[, ca.inds$xyz] )
+## [1] 64.044 51.615 33.423 62.439 54.794 32.359
+```
+
+
+In addition to the common selection strings (such as ‘calpha’ ‘cbeta’ ‘backbone’ ‘protein’
+‘notprotein’ ‘ligand’ ‘water’ ‘notwater’ ‘h’ and ‘noh’) various individual atom properties can be
+used for selection.
+```{r}
+# Select chain A
+a.inds <- atom.select(pdb, chain="A")
+# Select C-alphas of chain A
+ca.inds <- atom.select(pdb, "calpha", chain="A")
+# We can combine multiple selection criteria to return their intersection
+cab.inds <- atom.select(pdb, elety=c("CA","CB"), chain="A", resno=10:20)
+cab.inds
+
+```
+
+We want to select out the protein and drug only parts of these molecular files
+```{r}
+prot.inds <- atom.select(pdb, "protein")
+prot.inds
+
+```
+
+```{r}
+prot.pdb <- trim.pdb(pdb, prot.inds)
+write.pdb(prot.pdb, file = "protein.pdb")
+```
+
+Let's do the same things for our drug
+```{r}
+lig.inds <- atom.select(pdb, "ligand")
+lig.pdb <- trim.pdb(pdb, lig.inds)
+write.pdb(lig.pdb, file = "ligand.pdb")
+
+```
+
